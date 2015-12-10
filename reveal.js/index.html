@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>reveal.js – The HTML Presentation Framework</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+		<link rel="stylesheet" href="css/extra.css">
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<!-- Slide 1 -->
+				<section>
+						<h2>Node Greeville</h2>
+						<h4>Express + Ghost</h4>
+						<small>Javis Sullivan</small>
+				</section>
+				<!-- Slide 2 -->
+				<section>
+						<h2>The Skinny</h2>
+						<ul>
+
+							<li>Ghost & Express Mashup</li>
+							<ul>
+								<li>Added Ghost as Middleware</li>
+								<li>Addressed ghost issue <a href="https://github.com/TryGhost/Ghost/issues/5037#issuecomment-134471674">
+									#5037</a>
+								</li>
+
+							</ul>
+							&nbsp;
+							<li>Travis Environment Vars</li>
+								<ul>
+									<li>Timezone conflict in Travis</li>
+									<li>Environment Variable Check Fix</li>
+								</ul>
+							&nbsp;
+							<li>Congruent blog/webapp styling</li>
+								<ul>
+									<li>Ghost Navigation</li>
+									<li>In progress</li>
+								</ul>
+								&nbsp;
+							<li>Testing 1 2 3</li>
+						</ul>
+				</section>
+				<!-- Slide 3 -->
+				<section>
+					<!-- Slide 3a -------------------------------------->
+					<section>
+						<h1>Ghost & Express</h1>
+					</section>
+					<!-- Slide 3b -------------------------------------->
+					<section>
+						<h4>Directory Structure</h4>
+						<pre><code>
+ghost-app
+├── config.js
+├── content
+|
+├── ghost-as-middleware.js
+└── helpers
+      └── nghelpers.js
+							</code></pre>
+					</section>
+					<!-- Slide 3c ---------------------------------------->
+					<section>
+						<h4>The Approach</h4>
+
+						<hr>
+						<a href="https://github.com/NodeGreenville/nodegreenville/commit/539834d446374dffbe4a521e5e4b556a1d51fcd9">
+							Check out the Commit
+						</a>
+						<pre>
+							<code data-trim>
+								// app.js
+								var express = require('express');
++var ghost = require('./ghost-app/ghost-as-middleware');
+ var path = require('path');
+ var favicon = require('serve-favicon');
+ var logger = require('morgan');
+ @@ -29,6 +30,9 @@ app.use(cookieParser());
+ app.use(express.static(path.join(__dirname, 'public')));
+
+ app.use('/', routes);
++app.use('/blog', ghost({
++  config: path.join(__dirname, '/ghost-app/config.js')
++}));
+
+ // catch 404 and forward to error handler
+ app.use(function(req, res, next) {
+							</code>
+						</pre>
+					</section>
+					<!-- Slide 3c ----------------------------------->
+					<section>
+						<h4>Middleware Hack</h4>
+							<hr>
+							<pre>
+								<code data-trim>
+var ghost = require('ghost');
+
+function processBuffer(requestBuffer, app) {
+  while(requestBuffer.length) {
+    var request = requestBuffer.pop();
+    app(request[0], request[1]);
+  }
+}
+
+function makeGhostMiddleware(options) {
+  var requestBuffer = [];
+  var app = false;
+
+  ghost(options).then(function(ghostServer) {
+    app = ghostServer.rootApp;
+    processBuffer(requestBuffer, app);
+  });
+
+  return function handleRequest(request, response) {
+    if (!app) {
+      requestBuffer.unshift([request, response]);
+    } else {
+      app(request, response);
+    }
+  }
+}
+
+module.exports = makeGhostMiddleware;
+								</code>
+							</pre>
+							<a href="http://www.triplet.fi/blog/running-your-ghost-blog-and-express-app-on-heroku/">
+								Inpiration
+							</a>
+					</section>
+					<section>
+						<h4>Issue <a href="https://github.com/TryGhost/Ghost/issues/5037#issuecomment-134471674">#5037
+						</a></h4>
+						<blockquote>
+							<p>I am trying to use Ghost as an npm module alongside an existing expressjs app.
+I have all of the configuration working correctly and everything loads fine, but I run into an
+issue when trying to setup the blog. On domain.com/blog/ghost/setup, once I submit, I get the
+following error:</p>
+
+<pre><code>No root key ('setup') provided.</code></pre>
+						</blockquote>
+					</section>
+					<section>
+						<h4><a href="https://github.com/NodeGreenville/nodegreenville/commit/5d6d89e501613d21f3ecdd16e087ed690bcb61f0">
+						Solution</a></h4>
+						<pre><code>
+// app.js
+
+  app.use(logger('dev'));
+  app.use(bodyParser.json());
+- app.use(bodyParser.urlencoded({ extended: false }));
++ app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(cookieParser());
+  app.use(express.static(path.join(__dirname, 'public')));</code></pre>
+					</section>
+
+				</section>
+				<!-- Slide 4 -------------------------------------->
+				<section>
+					<!-- Slide 4a ------------------------------------>
+					<section>
+						<h1>Travis CI</h1>
+					</section>
+					<section>
+						<h4>Issues</h4>
+						<ul>
+							<li>Environment variables included in repository</li>
+							<li>Environment variables absent for travis builds</li>
+												</ul>
+					</section>
+					<!-- Slide 4b ------------------------------------>
+					<section>
+						<h4>Environment Vars</h4>
+						<img src="images/travis_settings.png"/>
+					</section>
+				</section>
+				<!-- Slide 5 ------------------------------------>
+				<section>
+					<section>
+						<h1>Ghost Style and Navigation</h1>
+					</section>
+					<section>
+						<h4>Node Greenville Theme</h4>
+						<ul>
+							<li>Inter-directory navigation</li>
+							<li>Overriding Ghost Code</li>
+							<li>Update Safe</li>
+						</ul>
+					</section>
+					<section>
+						<h4>Navigation</h4>
+						<pre><code>
+							{{!< default}}
+							{{! The tag above means - insert everything in this file into the {body} of the default.hbs template }}
+
+							{{! The big featured header }}
+							<header class="main-header
+							  {{#if @blog.cover}}" style="background-image: url({{@blog.cover}})
+							  {{else}}no-cover{{/if}}">
+
+							  {{! Depracated ghost nav }}
+							  {{> navBar}}
+
+							    <div class="vertical">
+							        <div class="main-header-content ">
+							            <h1 class="page-title">{{@blog.title}}</h1>
+							            <h2 class="page-description">{{@blog.description}}</h2>
+							        </div>
+							    </div>
+							    <a class="scroll-down icon-arrow-left" href="#content" data-offset="-45"><span class="hidden">Scroll Down</span></a>
+							</header>
+							{{! The main content area on the homepage }}
+							<main id="content" class="content" role="main">
+
+							    {{! The tag below includes the post loop - partials/loop.hbs }}
+							    {{> "loop"}}
+
+							</main></code></pre>							
+					</section>
+				</section>
+
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

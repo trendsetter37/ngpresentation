@@ -1,0 +1,73 @@
+ghost-app
+├── config.js
+├── content
+│   ├── apps
+│   │   └── README.md
+│   ├── data
+│   │   ├── ghost-dev.db
+│   │   └── README.md
+│   ├── images
+│   │   ├── 2015
+│   │   │   └── 12
+│   │   │       └── Putin_meme_raptors.jpg
+│   │   ├── ng_logo_footer.png
+│   │   └── README.md
+│   └── themes
+│       ├── casper
+│       │   ├── assets
+│       │   │   ├── css
+│       │   │   │   └── screen.css
+│       │   │   ├── fonts
+│       │   │   │   ├── casper-icons.eot
+│       │   │   │   ├── casper-icons.svg
+│       │   │   │   ├── casper-icons.ttf
+│       │   │   │   └── casper-icons.woff
+│       │   │   └── js
+│       │   │       ├── index.js
+│       │   │       └── jquery.fitvids.js
+│       │   ├── author.hbs
+│       │   ├── default.hbs
+│       │   ├── index.hbs
+│       │   ├── LICENSE
+│       │   ├── package.json
+│       │   ├── page.hbs
+│       │   ├── partials
+│       │   │   ├── loop.hbs
+│       │   │   └── navigation.hbs
+│       │   ├── post.hbs
+│       │   ├── README.md
+│       │   └── tag.hbs
+│       └── NodeGreenville
+│           ├── assets
+│           │   ├── css
+│           │   │   └── screen.css
+│           │   ├── fonts
+│           │   │   ├── casper-icons.eot
+│           │   │   ├── casper-icons.svg
+│           │   │   ├── casper-icons.ttf
+│           │   │   └── casper-icons.woff
+│           │   ├── images
+│           │   │   ├── ng_logo_footer.png
+│           │   │   ├── ng_logo_nav.png
+│           │   │   └── ng_pattern.jpg
+│           │   └── js
+│           │       ├── index.js
+│           │       └── jquery.fitvids.js
+│           ├── author.hbs
+│           ├── default.hbs
+│           ├── index.hbs
+│           ├── LICENSE
+│           ├── package.json
+│           ├── page.hbs
+│           ├── partials
+│           │   ├── loop.hbs
+│           │   ├── navBar.hbs
+│           │   └── navigation.hbs
+│           ├── post.hbs
+│           ├── README.md
+│           └── tag.hbs
+├── ghost-as-middleware.js
+└── helpers
+    └── nghelpers.js
+
+21 directories, 49 files
